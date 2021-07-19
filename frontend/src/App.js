@@ -1,19 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import Excalidraw, {
   exportToCanvas,
-  exportToSvg,
-  exportToBlob
 } from "@excalidraw/excalidraw";
-import InitialData from "./initialData";
+import axios from "axios";
+
 import Sidebar from "./sidebar/sidebar";
-
-
-const axios = require("axios");
-
 import "./styles.css";
-import initialData from "./initialData";
 
-const _ = require('lodash');
 
 const renderTopRightUI = () => {
   return (
@@ -40,7 +33,6 @@ export default function App() {
   const [viewModeEnabled, setViewModeEnabled] = useState(false);
   const [zenModeEnabled, setZenModeEnabled] = useState(false);
   const [gridModeEnabled, setGridModeEnabled] = useState(false);
-  const [blobUrl, setBlobUrl] = useState(null);
   const [canvasUrl, setCanvasUrl] = useState(null);
   const [exportWithDarkMode, setExportWithDarkMode] = useState(false);
   const [shouldAddWatermark, setShouldAddWatermark] = useState(false);
@@ -95,11 +87,7 @@ export default function App() {
   const generateImageURL = () => {
     const canvas = exportToCanvas({
       elements: excalidrawRef.current.getSceneElements(),
-      appState: {
-        ...initialData.appState,
-        exportWithDarkMode,
-        shouldAddWatermark
-      }
+      appState: {}
     })
     const ctx = canvas.getContext("2d");
     //ctx.font = "30px Virgil";
@@ -107,31 +95,31 @@ export default function App() {
     setCanvasUrl(canvas.toDataURL())    
     //console.log(canvasUrl);
 
-    var bodyFormData = new FormData();
-    bodyFormData.append('image', canvasUrl); 
+    // var bodyFormData = new FormData();
+    // bodyFormData.append('image', canvasUrl); 
     
-    // axios.post("http://localhost:8000", {'image': bodyFormData})
-    // .then(()=>{
-    //   console.log("success");
-    // })
-    // .catch((err)=>{
-    //   console.log(err);
-    // })
-
-    axios({
-      method: "post",
-      url: "http://localhost:8000",
-      data: bodyFormData,
-      headers: { "Content-Type": "multipart/form-data" },
+    axios.post("http://localhost:8000/create", {canvasUrl: canvasUrl})
+    .then(()=>{
+      console.log("success");
     })
-      .then((response) =>{
-        //handle success
-        console.log(response);
-      })
-      .catch((response) => {
-        //handle error
-        console.log(response);
-      });
+    .catch((err)=>{
+      console.log(err);
+    });
+
+    // axios({
+    //   method: "post",
+    //   url: "http://localhost:8000",
+    //   data: bodyFormData,
+    //   headers: { "Content-Type": "multipart/form-data" },
+    // })
+    //   .then((response) =>{
+    //     //handle success
+    //     console.log(response);
+    //   })
+    //   .catch((response) => {
+    //     //handle error
+    //     console.log(response);
+    //   });
 
   }
 
@@ -155,6 +143,11 @@ export default function App() {
   return (
     <div className="App">
       <h1> Excalidraw Example</h1>
+
+      // <div className="showImages">
+      //   <Button></Button>
+      // </div>
+
       <Sidebar>
         <div className="button-wrapper">
           <button className="update-scene" onClick={updateScene}>
@@ -247,71 +240,7 @@ export default function App() {
             />
             Add Watermark
           </label>
-          <button
-            onClick={async () => {
-              const svg = await exportToSvg({
-                elements: excalidrawRef.current.getSceneElements(),
-                appState: {
-                  ...initialData.appState,
-                  exportWithDarkMode,
-                  shouldAddWatermark,
-                  width: 300,
-                  height: 100
-                },
-                embedScene: true
-              });
-              document.querySelector(".export-svg").innerHTML = svg.outerHTML;
-            }}
-          >
-            Export to SVG
-          </button>
-          <div className="export export-svg"></div>
-
-          <button
-            onClick={async () => {
-              const blob = await exportToBlob({
-                elements: excalidrawRef.current.getSceneElements(),
-                mimeType: "image/png",
-                appState: {
-                  ...initialData.appState,
-                  exportWithDarkMode,
-                  shouldAddWatermark
-                }
-              });
-              let bobResult = window.URL.createObjectURL(blob);
-              let myResult = URL.createObjectURL(blob);
-              console.log(bobResult, myResult);
-              setBlobUrl(bobResult);              
-            }}
-          >
-            Export to Blob
-          </button>
-          <div className="export export-blob">
-            <img src={blobUrl} alt="" />
-          </div>
-
-          <button
-            onClick={() => {
-              const canvas = exportToCanvas({
-                elements: excalidrawRef.current.getSceneElements(),
-                appState: {
-                  ...initialData.appState,
-                  exportWithDarkMode,
-                  shouldAddWatermark
-                }
-              });
-              const ctx = canvas.getContext("2d");
-              //ctx.font = "30px Virgil";
-              //ctx.strokeText("My custom text", 50, 60);
-              setCanvasUrl(canvas.toDataURL());
-              console.log(canvas.toDataURL());
-            }}
-          >
-            Export to Canvas
-          </button>
-          <div className="export export-canvas">
-            <img src={canvasUrl} alt="" />
-          </div>
+         
         </div>
       </Sidebar>
     </div>
