@@ -7,6 +7,9 @@ import Excalidraw, {
 import InitialData from "./initialData";
 import Sidebar from "./sidebar/sidebar";
 
+
+const axios = require("axios");
+
 import "./styles.css";
 import initialData from "./initialData";
 
@@ -102,7 +105,34 @@ export default function App() {
     //ctx.font = "30px Virgil";
     //ctx.strokeText("My custom text", 50, 60);
     setCanvasUrl(canvas.toDataURL())    
-    console.log(canvasUrl);
+    //console.log(canvasUrl);
+
+    var bodyFormData = new FormData();
+    bodyFormData.append('image', canvasUrl); 
+    
+    // axios.post("http://localhost:8000", {'image': bodyFormData})
+    // .then(()=>{
+    //   console.log("success");
+    // })
+    // .catch((err)=>{
+    //   console.log(err);
+    // })
+
+    axios({
+      method: "post",
+      url: "http://localhost:8000",
+      data: bodyFormData,
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+      .then((response) =>{
+        //handle success
+        console.log(response);
+      })
+      .catch((response) => {
+        //handle error
+        console.log(response);
+      });
+
   }
 
   const throttle = (fn, limit) => {
