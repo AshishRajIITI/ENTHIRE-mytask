@@ -53,26 +53,7 @@ router.route("/").post((req, res) => {
 
 });
 
-router.route("/find").get((req, res)=>{
-
-	ImageModel.find({})
-	.then((response)=>{
-		if(response){
-			res.send(response);			
-		}
-		else{
-			res.send("No images saved till now");
-		}
-	})
-	.catch((err)=>{
-		res.send(err.message);
-	})
-
-});
-
 app.use("/create", router);
-app.use("/find", router);
-
 
 app.listen(8000, () => {
 	console.log(`Server is running at port no. : 8000`);
